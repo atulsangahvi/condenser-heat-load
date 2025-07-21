@@ -1,3 +1,4 @@
+
 import streamlit as st
 from CoolProp.CoolProp import PropsSI
 
@@ -10,24 +11,38 @@ T_superheat = st.number_input("Inlet Superheated Temp (°C)", value=95.0)
 T_subcool = st.number_input("Outlet Subcooled Liquid Temp (°C)", value=52.7)
 m_dot = st.number_input("Mass Flow Rate (kg/s)", value=0.599)
 
-# Convert to required units
+# Convert to SI units
 P_cond = P_cond_bar * 1e5  # Pa
 T1 = T_superheat + 273.15  # K
 T3 = T_subcool + 273.15    # K
 
 try:
-    # Enthalpies from CoolProp
-    h1 = PropsSI("H", "P", P_cond, "T", T1, fluid)          # Superheated vapor
-    h2 = PropsSI("H", "P", P_cond, "Q", 1, fluid)           # Saturated vapor
-    h3 = PropsSI("H", "P", P_cond, "Q", 0, fluid)           # Saturated liquid
-    h4 = PropsSI("H", "P", P_cond, "T", T3, fluid)          # Subcooled liquid
+    # Get saturation temperature at condensing pressure
+    T_sat = PropsSI("T", "P", P_cond, "Q", 0, fluid)
 
-    # Heat loads (J/kg)
+    # h1: superheated vapor or saturated vapor
+    if T1 > T_sat:
+        h1 = PropsSI("H", "P", P_cond, "T", T1, fluid)
+    else:
+        h1 = PropsSI("H", "P", P_cond, "Q", 1, fluid)
+
+    # h2: saturated vapor
+    h2 = PropsSI("H", "P", P_cond, "Q", 1, fluid)
+
+    # h3: saturated liquid
+    h3 = PropsSI("H", "P", P_cond, "Q", 0, fluid)
+
+    # h4: subcooled liquid or saturated liquid
+    if T3 < T_sat:
+        h4 = PropsSI("H", "P", P_cond, "T", T3, fluid)
+    else:
+        h4 = h3
+
+    # Calculate heat duties
     q_sensible = h1 - h2
     q_latent = h2 - h3
     q_subcool = h3 - h4
 
-    # Convert to kW
     Q_sensible = m_dot * q_sensible / 1000
     Q_latent = m_dot * q_latent / 1000
     Q_subcool = m_dot * q_subcool / 1000
