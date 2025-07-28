@@ -5,11 +5,11 @@ from CoolProp.CoolProp import PropsSI
 st.title("Refrigerant Heat Load Calculator (R134a & R407C)")
 
 # User Inputs
-fluid = st.selectbox("Select Refrigerant", ["R134a", "R407C"])
-P_cond_bar = st.number_input("Condensing Pressure (bar abs)", value=23.52, min_value=1.0, max_value=35.0, step=0.1)
-T_superheat = st.number_input("Inlet Superheated Temp (°C)", value=95.0)
-T_subcool = st.number_input("Outlet Subcooled Liquid Temp (°C)", value=52.7)
-m_dot = st.number_input("Mass Flow Rate (kg/s)", value=0.599)
+fluid = st.sidebar.selectbox("Select Refrigerant", ["R134a", "R407C"])
+P_cond_bar = st.sidebar.number_input("Condensing Pressure (bar abs)", value=23.52, min_value=1.0, max_value=35.0, step=0.1)
+T_superheat = st.sidebar.number_input("Inlet Superheated Temp (°C)", value=95.0)
+T_subcool = st.sidebar.number_input("Outlet Subcooled Liquid Temp (°C)", value=52.7)
+m_dot = st.sidebar.number_input("Mass Flow Rate (kg/s)", value=0.599)
 
 # Convert to SI units
 P_cond = P_cond_bar * 1e5  # Pa
